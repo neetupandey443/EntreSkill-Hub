@@ -55,20 +55,23 @@ app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log("LOGIN DATA:", email, password);
+
     const user = await User.findOne({ email });
 
     if (!user) {
       return res.json({ message: "User not found ❌" });
     }
 
-    // 🔥 SAFE COMPARE
+    console.log("DB PASSWORD:", user.password);
+
     let isMatch = false;
 
-    if (user.password.startsWith("$2b$")) {
-      // hashed password
+    try {
+      // try bcrypt compare
       isMatch = await bcrypt.compare(password, user.password);
-    } else {
-      // old plain password (fallback)
+    } catch (err) {
+      console.log("bcrypt error, fallback");
       isMatch = password === user.password;
     }
 
