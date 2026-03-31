@@ -28,15 +28,17 @@ app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // simple validation
     if (!name || !email || !password) {
       return res.json({ message: "All fields required" });
     }
 
+    // 🔥 HASH PASSWORD
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = new User({
-      name: name,
-      email: email,
-      password: password
+      name,
+      email,
+      password: hashedPassword
     });
 
     await newUser.save();
@@ -44,11 +46,10 @@ app.post("/register", async (req, res) => {
     res.json({ message: "User registered successfully" });
 
   } catch (error) {
-    console.log(error);
+    console.log("ERROR:", error);
     res.json({ message: "Server error" });
   }
 });
-
 // ================= LOGIN API =================
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
