@@ -27,7 +27,7 @@ document.getElementById("registerForm")?.addEventListener("submit", async functi
     const data = await res.json();
     alert(data.message);
 
-    if(data.message.includes("success")) {
+    if(data.message.toLowerCase().includes("success")) {
       window.location.href = "login.html";
     }
 
@@ -56,8 +56,10 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
     const data = await res.json();
     alert(data.message);
 
-    if(data.message.includes("successful")) {
+    if(data.message.toLowerCase().includes("successful")) {
       localStorage.setItem("token", data.token);
+
+      // 🔥 IMPORTANT FIX
       window.location.href = "skill.html";
     }
 
@@ -125,16 +127,19 @@ if(container) {
   };
 
   skills.forEach(skill => {
-    const idea = ideaMap[skill];
+    const idea = ideaMap[skill] || "Startup Idea 🚀";
 
     container.innerHTML += `
-      <div class="col-md-4">
-        <div class="idea-card">
+      <div class="col-md-4 mb-3">
+        <div class="idea-card p-3 shadow">
           <h5>${idea}</h5>
           <p>Start your journey today 🚀</p>
+
+          <!-- 🔥 FIXED BUTTON -->
           <button onclick="viewRoadmap('${skill}')" class="btn btn-primary w-100">
             View Roadmap
           </button>
+
         </div>
       </div>
     `;
