@@ -1,3 +1,7 @@
+// ================= BASE URL =================
+const BASE_URL = "https://entreskill-backend.onrender.com";
+
+
 // ================= REGISTER FORM =================
 document.getElementById("registerForm")?.addEventListener("submit", async function(e) {
   e.preventDefault();
@@ -12,7 +16,7 @@ document.getElementById("registerForm")?.addEventListener("submit", async functi
   }
 
   try {
-    const res = await fetch("http://localhost:3000/register", {
+    const res = await fetch(`${BASE_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -23,7 +27,6 @@ document.getElementById("registerForm")?.addEventListener("submit", async functi
     const data = await res.json();
     alert(data.message);
 
-    // 🔥 Register ke baad login page pe jao
     if(data.message.includes("success")) {
       window.location.href = "login.html";
     }
@@ -42,7 +45,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
   const password = document.getElementById("password").value;
 
   try {
-    const res = await fetch("http://localhost:3000/login", {
+    const res = await fetch(`${BASE_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -54,9 +57,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
     alert(data.message);
 
     if(data.message.includes("successful")) {
-      // 🔥 TOKEN SAVE (IMPORTANT)
       localStorage.setItem("token", data.token);
-
       window.location.href = "skill.html";
     }
 
@@ -141,123 +142,20 @@ if(container) {
 }
 
 
-// ================= ROADMAP NAVIGATION =================
+// ================= ROADMAP =================
 function viewRoadmap(skill) {
   localStorage.setItem("selectedSkill", skill);
   window.location.href = "roadmap.html";
 }
 
 
-// ================= ROADMAP PAGE =================
-const roadmapContainer = document.getElementById("roadmapContainer");
-
-if(roadmapContainer) {
-
-  const skill = localStorage.getItem("selectedSkill");
-
-  if(!skill) {
-    alert("Please select an idea first!");
-    window.location.href = "skill.html";
-  }
-
-  const roadmapData = {
-    "Web Development": [
-      "Learn HTML, CSS, JavaScript",
-      "Build projects",
-      "Create portfolio",
-      "Freelancing start",
-      "Get clients"
-    ],
-    "Cooking": [
-      "Decide menu",
-      "Calculate cost",
-      "Take orders",
-      "Promote locally",
-      "Expand"
-    ],
-    "Marketing": [
-      "Learn marketing",
-      "Run campaigns",
-      "Get clients",
-      "Scale business"
-    ]
-  };
-
-  const steps = roadmapData[skill] || ["Research", "Plan", "Start", "Grow"];
-
-  steps.forEach((step, index) => {
-    roadmapContainer.innerHTML += `
-      <div class="roadmap-step">
-        <h5>Step ${index + 1}</h5>
-        <p>${step}</p>
-      </div>
-    `;
-  });
-}
-
-
-// ================= DASHBOARD NAVIGATION =================
-function goToDashboard() {
-  window.location.href = "dashboard.html";
-}
-
-
-// ================= DASHBOARD PROTECTION 🔥 =================
+// ================= DASHBOARD PROTECTION =================
 if(window.location.pathname.includes("dashboard.html")) {
   const token = localStorage.getItem("token");
 
   if(!token) {
     alert("Please login first!");
     window.location.href = "login.html";
-  }
-}
-
-
-// ================= DASHBOARD PAGE =================
-const skillDisplay = document.getElementById("selectedSkill");
-const stepsContainer = document.getElementById("stepsContainer");
-const progressBar = document.getElementById("progressBar");
-
-if(skillDisplay && stepsContainer) {
-
-  const skill = localStorage.getItem("selectedSkill");
-
-  if(!skill) {
-    alert("Please select a skill first!");
-    window.location.href = "skill.html";
-  }
-
-  skillDisplay.innerText = skill;
-
-  const roadmapData = {
-    "Web Development": ["Learn basics", "Build projects", "Portfolio", "Freelance"],
-    "Cooking": ["Test recipes", "Pricing", "Orders", "Expand"],
-    "Marketing": ["Learn", "Practice", "Ads", "Clients"]
-  };
-
-  const steps = roadmapData[skill] || ["Research", "Plan", "Start", "Grow"];
-
-  steps.forEach(step => {
-    stepsContainer.innerHTML += `
-      <div class="form-check">
-        <input type="checkbox" onclick="updateProgress()" class="form-check-input">
-        <label class="form-check-label">${step}</label>
-      </div>
-    `;
-  });
-
-  window.updateProgress = function() {
-    const checkboxes = document.querySelectorAll("#stepsContainer input");
-
-    let completed = 0;
-    checkboxes.forEach(cb => {
-      if(cb.checked) completed++;
-    });
-
-    const percent = Math.round((completed / checkboxes.length) * 100);
-
-    progressBar.style.width = percent + "%";
-    progressBar.innerText = percent + "%";
   }
 }
 

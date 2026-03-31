@@ -25,20 +25,28 @@ const User = mongoose.model("User", userSchema);
 
 // ================= REGISTER API =================
 app.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-  // 🔥 password ko encrypt karo
-  const hashedPassword = await bcrypt.hash(password, 10);
+    // simple validation
+    if (!name || !email || !password) {
+      return res.json({ message: "All fields required" });
+    }
 
-  const newUser = new User({
-    name,
-    email,
-    password: hashedPassword
-  });
+    const newUser = new User({
+      name: name,
+      email: email,
+      password: password
+    });
 
-  await newUser.save();
+    await newUser.save();
 
-  res.json({ message: "User registered successfully ✅" });
+    res.json({ message: "User registered successfully" });
+
+  } catch (error) {
+    console.log(error);
+    res.json({ message: "Server error" });
+  }
 });
 
 // ================= LOGIN API =================
