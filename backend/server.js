@@ -52,34 +52,46 @@ app.post("/register", async (req, res) => {
 });
 // ================= LOGIN API =================
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-  if (!user) {
-    return res.json({ message: "User not found ❌" });
+    if (!user) {
+      return res.json({ message: "User not found ❌" });
+    }
+
+    // 🔥 SAFE COMPARE
+    let isMatch = false;
+
+    if (user.password.startsWith("$2b$")) {
+      // hashed password
+      isMatch = await bcrypt.compare(password, user.password);
+    } else {
+      // old plain password (fallback)
+      isMatch = password === user.password;
+    }
+
+    if (!isMatch) {
+      return res.json({ message: "Invalid password ❌" });
+    }
+
+    const token = jwt.sign(
+      { id: user._id },
+      "secretkey123",
+      { expiresIn: "1h" }
+    );
+
+    res.json({
+      message: "Login successful ✅",
+      token
+    });
+
+  } catch (error) {
+    console.log("LOGIN ERROR:", error);
+    res.json({ message: "Server error" });
   }
-
-  // 🔥 password compare
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    return res.json({ message: "Invalid password ❌" });
-  }
-
-  // 🔥 token create
-  const token = jwt.sign(
-    { id: user._id },
-    "secretkey123",
-    { expiresIn: "1h" }
-  );
-
-  res.json({
-    message: "Login successful ✅",
-    token
-  });
 });
-
 // ================= TEST ROUTE =================
 app.get("/", (req, res) => {
   res.send("Server running 🚀");
